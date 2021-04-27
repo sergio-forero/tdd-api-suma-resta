@@ -1,0 +1,3 @@
+"Story","Title","Result","Date","Stability","Duration (s)"
+"Suma de la calculadora","Intento de suma con cantidad de parametros incorrecta","ERROR","2020-12-09T21:02:36.069097-05:00[America/Bogota]","0.0","0.09"
+"Suma de la calculadora","Intento de suma con caracteres no validos","ERROR","2020-12-09T21:02:36.296961-05:00[America/Bogota]","0.0","0.02"

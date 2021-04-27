@@ -1,0 +1,88 @@
+pipeline {
+    agent any
+
+    tools {
+        gradle 'Gradle-6.1.4' 
+    }
+    environment {
+        UNSTABLE = false
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                script{
+                    git branch: 'main', 
+                        credentialsId: 'e6409b1b-f049-4939-8b5c-6c10cd64ae11',
+                           url: 'git@github.com:hackol94/tdd-api-suma-resta.git'
+                }
+            }
+        }
+        stage('Create Container') {
+            steps {
+             script{
+                        sh "docker build -t nodejs-tdd/caculadora-suma-resta .";
+                        sh "docker run -p 9095:3000 -d nodejs-tdd/caculadora-suma-resta";
+                }
+            }
+        }
+        stage('Executing WSS Test'){
+            steps{
+                script{
+                    try {
+                        sh "cd SerenityCalculadoraTddNodeJs && gradle clean test -Dcucumber.options='--tags @Test' --no-build-cache"
+                    } catch (err) {
+                        throw(err)
+                    } finally {
+                        publishHTML (target: [
+                        reportDir: 'SerenityCalculadoraTddNodeJs/target/site/serenity',
+                        reportFiles: 'index.html',
+                        reportName: "API tests report"
+                        ])
+                    }
+                    
+                }
+            }
+        }
+    }
+    post {
+        success {
+            script{
+                try{
+                    sh "npm install "
+                    sh "node app.js &"
+                }catch(ex){
+                    sh'echo ex'
+                }
+            }
+        }
+        always {
+            script{
+                try{
+                    sh "docker ps -a -q | xargs docker kill"
+                }catch(ex){
+                    sh'echo ex'
+                }
+            }
+        }
+        failure {
+            script{
+                fileOperations([fileZipOperation(folderPath: 'SerenityCalculadoraTddNodeJs/target/site/', outputFolderPath: 'SerenityCalculadoraTddNodeJs/target')])
+            }
+            archiveArtifacts artifacts: 'SerenityCalculadoraTddNodeJs/target/site.zip', onlyIfSuccessful: true
+              
+            emailext to: 'brayan.martinez@avaldigitallabs.com',
+            from: "Jenkins",
+            subject: "Execution WSS Test Viability",
+            mimeType: 'text/html',
+            body: "File received: \n" +
+                  "From package:  \n" +
+                  "Package MD5:   \n" +
+                  "Jenkins Build: \n",
+            attachmentsPattern: "SerenityCalculadoraTddNodeJs/target/site.zip"
+            script{
+                fileOperations([fileDeleteOperation(includes: 'SerenityCalculadoraTddNodeJs/target/*')])
+            }
+        }
+        }
+        
+}

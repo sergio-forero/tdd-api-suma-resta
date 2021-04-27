@@ -1,0 +1,5 @@
+"Story","Title","Result","Date","Stability","Duration (s)"
+"Resta de la calculadora","Resta de dos numeros de forma correcta.","SUCCESS","2020-12-09T21:04:02.057257-05:00[America/Bogota]","0.0","3.51"
+"Suma de la calculadora","Suma de dos numeros de forma correcta.","SUCCESS","2020-12-09T21:04:05.577247-05:00[America/Bogota]","0.0","0.06"
+"Suma de la calculadora","Intento de suma con cantidad de parametros incorrecta","SUCCESS","2020-12-09T21:04:05.642888-05:00[America/Bogota]","0.0","0.09"
+"Suma de la calculadora","Intento de suma con caracteres no validos","SUCCESS","2020-12-09T21:04:05.740175-05:00[America/Bogota]","0.0","0.07"

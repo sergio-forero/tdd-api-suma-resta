@@ -1,0 +1,85 @@
+apply from: "https://gradle.avaldigitallabs.com/resources/java-serenity-project.gradle"
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+compileJava {options.encoding = "UTF-8"}
+compileTestJava {options.encoding = "UTF-8"}
+
+
+defaultTasks 'clean','test','aggregate'
+
+repositories {
+    mavenLocal()
+    jcenter()
+}
+
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath("net.serenity-bdd:serenity-gradle-plugin:2.0.90")
+    }
+}
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'maven'
+
+ext{
+    serenity_version = "2.1.0"
+    serenity_cucumber_version = "4.8.0"
+}
+dependencies {
+    compile localGroovy()
+    compile "net.serenity-bdd:serenity-core:$serenity_version"
+    compile "net.serenity-bdd:serenity-junit:$serenity_version"
+    compile "io.cucumber:cucumber-java:$serenity_cucumber_version"
+    compile "io.cucumber:cucumber-junit:$serenity_cucumber_version"
+    compile "net.serenity-bdd:serenity-screenplay:$serenity_version"
+    compile "net.serenity-bdd:serenity-screenplay-webdriver:$serenity_version"
+    compile "net.serenity-bdd:serenity-emailer:$serenity_version"
+    compile "net.serenity-bdd:serenity-screenplay-rest:$serenity_version"
+    compile "net.serenity-bdd:serenity-cucumber4:$serenity_version"
+    compile "net.serenity-bdd:serenity-junit:$serenity_version"
+
+    testCompile group: 'net.serenity-bdd', name: 'serenity-spring', version: '2.0.52'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version: '2.3.2.RELEASE'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.0'
+    implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.10.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.10.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.0'
+    implementation 'com.github.javafaker:javafaker:1.0.1'
+    implementation 'redis.clients:jedis:3.1.0'
+    implementation 'biz.paluch.redis:lettuce:3.2.Final'
+    compile group: 'org.apache.logging.log4j', name: 'log4j', version: '2.13.3', ext: 'pom'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.14'
+
+    /* Lombok */
+    testCompile 'org.slf4j:slf4j-simple:1.7.7'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.assertj:assertj-core:1.7.0'
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.6.3'
+
+}
+
+test {
+    testLogging {
+        showStandardStreams = true
+    }
+    testLogging.showStandardStreams = true
+    systemProperties System.getProperties()
+    test.finalizedBy(aggregate)
+}
+
+
+sourceCompatibility = '1.8'
+gradle.startParameter.continueOnFailure = true
