@@ -1,0 +1,95 @@
+name: Pipeline
+
+on: push
+
+jobs:
+  static-analysis:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prettify code
+        uses: creyD/prettier_action@v3.3
+        with:
+          prettier_options: --check .
+      - name: Sonarcloud
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=sergio-forero
+            -Dsonar.projectName=tdd-api-suma-resta
+            -Dsonar.projectKey=sergio-forero_tdd-api-suma-resta
+            -Dsonar.sources=.
+            -Dsonar.exclusions=SerenityCalculadoraTddNodeJs/**
+
+  app-run:
+    name: App test
+    runs-on: ubuntu-latest
+    env:
+      NODE-VERSION: 14.x
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: App build
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.NODE-VERSION }}
+      - id: app-run-app-test
+        name: App test
+        run: |
+          npm install
+          npm test
+
+  tests-run:
+    name: Tests run
+    runs-on: ubuntu-latest
+    needs: app-run
+    env:
+      JAVA-VERSION: 8
+      NODE-VERSION: 14.x
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: App build
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.NODE-VERSION }}
+      - name: App run
+        run: |
+          npm install
+          PORT=1234 npm run app &
+      - name: Tests build
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ env.JAVA-VERSION }}
+          distribution: "adopt"
+      - id: test
+        name: Tests run
+        run: cd SerenityCalculadoraTddNodeJs && gradle clean test -Dcucumber.options='--tags @Test' --no-build-cache
+      - name: Tests report
+        uses: actions/upload-artifact@v2
+        with:
+          name: Report
+          path: SerenityCalculadoraTddNodeJs/target/site
+
+  slack-notification:
+    name: Slack notification
+    runs-on: ubuntu-latest
+    needs: tests-run
+    if: always()
+    env:
+      NODE-VERSION: 14.x
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Notify
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_USERNAME: GitHub Actions
+          SLACK_MESSAGE: "Pipeline finished"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

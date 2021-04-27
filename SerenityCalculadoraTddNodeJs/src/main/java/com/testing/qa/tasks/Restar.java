@@ -8,20 +8,20 @@ import net.serenitybdd.screenplay.rest.interactions.Get;
 import static net.serenitybdd.screenplay.Tasks.instrumented;
 
 public class Restar implements Task {
-    private int a,b;
+    private int a, b;
 
-    public Restar(int a, int b){
+    public Restar(int a, int b) {
         this.a = a;
-        this.b =b;
+        this.b = b;
     }
 
-    public static Restar numeros(int a, int b){
-        return instrumented(Restar.class,a,b);
+    public static Restar numeros(int a, int b) {
+        return instrumented(Restar.class, a, b);
     }
 
     @Override
     public <T extends Actor> void performAs(T actor) {
-        String url = "subtract?a="+this.a+"&b="+this.b;
+        String url = "subtract?a=" + this.a + "&b=" + this.b;
         actor.attemptsTo(
                 Get.resource(url)
         );

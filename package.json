@@ -4,6 +4,7 @@
   "description": "Calculadora de Suma y Resta",
   "main": "app.js",
   "scripts": {
+    "app": "node app.js",
     "test": "node_modules/.bin/mocha -u exports test/**/* --exit"
   },
   "author": "BrayanMartinez",
@@ -14,6 +15,7 @@
     "supertest": "^6.0.1"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "prettier": "^2.2.1"
   }
 }
